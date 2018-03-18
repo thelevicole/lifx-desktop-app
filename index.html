@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>LIFX Desktop Application</title>
+	<link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+
+	<div vue-app>
+
+		<header>
+			<a v-on:click.prevent="logout" v-if="access_token && lights.length">Logout</a>
+		</header>
+
+		<!-- Auth form -->
+		<div v-if="!access_token || !lights.length">
+			<form v-on:submit.prevent="authenticate">
+				<h3>An access token is required</h3>
+				<p>You can generate personal access tokens from your <a href="https://cloud.lifx.com/settings" target="_blank">LIFX Cloud</a> account.</p>
+				<input type="text" v-model="access_token">
+				<button class="btn">Connect</button>
+			</form>
+		</div>
+
+		<!-- If we have the users access token -->
+		<div v-if="access_token && lights.length">
+
+			<!-- List all lights -->
+			<div v-if="!light">
+				<div id="bulbs" class="text-center" v-if="lights.length">
+					<light-switch v-for="light in lights" :key="light.id" :data="light"/>
+				</div>
+				<h1 v-if="!lights.length" class="text-center text-white">Loading...</h1>
+			</div>
+
+			<!-- Show single light -->
+			<div v-if="light">
+				<color-picker/>
+			</div>
+
+		</div>
+	</div>
+
+	<script type="text/x-template" id="light-switch-template">
+		<div class="switch" v-if="data">
+			<button class="toggle-power" v-on:click="toggle()">
+				<svg viewBox="0 0 36 36" class="svg">
+					<circle class="base" cx="18" cy="18" r="16"></circle>
+					<path class="progress" :stroke="hex_color" :stroke-dasharray="percentage" :stroke-linecap="linecap" d="M18 2 a 16 16 0 0 1 0 32 a 16 16 0 0 1 0 -32"></path>
+					<path d="M16.5,13.8327556 L16.5,14.9325233 C15.3105492,15.56127 14.5,16.810978 14.5,18.25 C14.5,20.3210678 16.1789322,22 18.25,22 C20.3210678,22 22,20.3210678 22,18.25 C22,16.810978 21.1894508,15.56127 20,14.9325233 L20,13.8327556 C21.75731,14.5295445 23,16.2446494 23,18.25 C23,20.8733526 20.8733526,23 18.25,23 C15.6266474,23 13.5,20.8733526 13.5,18.25 C13.5,16.2446494 14.74269,14.5295445 16.5,13.8327556 Z M17.75,13.5 L18.75,13.5 L18.75,18 L17.75,18 L17.75,13.5 Z" class="icon" :fill="hex_color" fill-rule="nonzero"></path>
+				</svg>
+				<div class="glow" :style="{background: hex_color}"></div>
+			</button>
+			<button class="goto-single btn" v-on:click="set()">{{ data.label }}</button>
+		</div>
+	</script>
+
+	<script type="text/x-template" id="color-picker-template">
+		<div class="color-picker" :class="['power-'+light.power]">
+			<button class="close btn" v-on:click="close()" style="position: relative; z-index: 999;">&laquo; Go back</button>
+			<div class="inner">
+				<canvas width="320px" height="320px"></canvas>
+				<div class="controls">
+					<div class="color">
+						<div class="handle"></div>
+					</div>
+					<div class="brightness">
+						<div class="handle">
+							<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script> require('./renderer.js'); </script>
+</body>
+</html>

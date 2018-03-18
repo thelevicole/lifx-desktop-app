@@ -1,0 +1,55 @@
+$body-bg: #000002;
+$header-height: 38px;
+$button-radius: 10px;
+
+body {
+	background: $body-bg;
+	font-family: Arial, sans-serif;
+	color: #fff;
+	padding-top: $header-height + 10px;
+	user-select: none;
+	text-align: center;
+}
+
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
+a {
+	color: #fff;
+	text-decoration: underline;
+}
+
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: $header-height;
+	background: #141316;
+	text-align: right;
+	font-size: 0.75rem;
+	padding: 12px;
+	-webkit-app-region: drag;
+}
+
+.btn {
+	display: inline-block;
+	appearance: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	outline: none;
+	cursor: pointer;
+	
+	position: relative;
+	background: rgba(#fff, 0.1);
+	color: #fff;
+	font-size: 12px;
+	letter-spacing: 0.52;
+	padding: 10px;
+	border-radius: $button-radius;
+}
+
+@import 'partials/switch';
+@import 'partials/color-picker';
