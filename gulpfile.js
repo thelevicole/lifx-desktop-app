@@ -26,7 +26,7 @@ gulp.task('sass', function() {
 			outputStyle: 'expanded'
 		}) )
 		.pipe( prefix('last 1 version', '> 1%', 'ie 8', 'ie 7') )
-		.pipe( gulp.dest('./assets/css') )
+		.pipe( gulp.dest('./css') )
 		.pipe( css_min() )
 		.pipe( gulp.dest('./css') );
 });

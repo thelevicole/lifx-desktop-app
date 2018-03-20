@@ -1,7 +1,7 @@
 window.$ = window.jQuery = require('jquery');
 window.Vue = require('vue/dist/vue.min.js');
-require('./js/jQuery.LifxColorPicker.js');
-const Lifx = require('./js/Lifx.js');
+require('./assets/javascripts/jQuery.LifxColorPicker.js');
+const Lifx = require('./assets/javascripts/Lifx.js');
 const shell = require('electron').shell;
 
 (function($) {
