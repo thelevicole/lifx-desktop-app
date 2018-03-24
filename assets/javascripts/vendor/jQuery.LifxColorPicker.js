@@ -8,48 +8,96 @@
 	'use strict';
 
 	$.fn.LifxColorPicker = function(options) {
+		var self = this;
 
 		options = $.extend({
-			color: 0,
-			brightness: 1,
+			hue: 0,				// 0 - 360
+			saturation: 0.6,	// 0.1 - 1
+			brightness: 1,		// 0 - 1
 			// Callbacks
-			changed: function(hex, brightness) {}
+			changed: function(color) {
+				// color.hex
+				// color.hue
+				// color.saturation
+				// color.brigtness
+			}
 		}, options);
 
-		const $this			= this;
+		// Accessible data
+		self.data = {
+			hex: '',
+			hue: 0,
+			saturation: 0,
+			brightness: 0
+		};
 
+		/**
+		 * DOM Elements
+		 * @type {jQuery}
+		 */
+		const $this			= this;
 		const $canvas		= $this.find('canvas');
 		const $handle		= $this.find('.color .handle');
 		const $brightness	= $this.find('.brightness .handle');
 		
-		// HTML5 canvas properties
+		/**
+		 * Canvas properties
+		 */
 		var canvas		= $canvas[0];
 		var context		= canvas.getContext('2d');
 
-		// Canvas points
-		let x = canvas.width / 2;
-		let y = canvas.height / 2;
-		let r = x; // Radius
-		const r2d = Math.PI / 180;
+		/**
+		 * Math values
+		 */
+		let x		= canvas.width / 2;
+		let y		= canvas.height / 2;
+		let r		= x;
+		const r2d	= Math.PI / 180;
 		
 		/**
 		 * Draw color dial
 		 */
-		function draw() {
+		self.draw_wheel = (attributes) => {
 
+			self.data = $.extend(self.data, (attributes || {}));
+
+			if (self.data.hue < 0) {
+				self.data.hue	= 360 - Math.abs(self.data.hue);
+			}
+			
+			var rotate = self.data.hue;
+			
+			self.data.hue = 360 - self.data.hue;
+			
+			// Clear canvas
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			// Set transform origin (center)
+			context.setTransform(1, 0, 0, 1, 0, 0);
+			// Set translate origin (center)
+			context.translate(x, y);
+
+			// Rotate canvas
+			context.rotate(rotate * r2d);
+			// Center canvas
+			context.translate(-x, -y);
+
+			// For each degree in a circle
 			for (var angle = 0; angle <= 360; angle++) {
-				var start	= -((angle + 2) * r2d);
-				var end		= -(angle * r2d);
+				// Start and end of shape
+				var start	= ((angle - 90) * r2d);
+				var end		= ((angle - 88) * r2d);
 
+				// Draw shape
 				context.beginPath();
-				context.moveTo(x + 10, y + 10);
+				context.moveTo(x, y);
 				context.arc(x, y, r, start, end, false);
 				context.closePath();
 
+				// Generate gradient for shape
 				var gradient = context.createRadialGradient(x, y, 0, x, y, r);
 					gradient.addColorStop(0.475, 'hsl('+angle+', 10%, 100%)');
-					gradient.addColorStop(0.75, 'hsl('+angle+', 100%, 50%)');
-					gradient.addColorStop(1, 'hsl('+angle+', 100%, 30%)');
+					//gradient.addColorStop(0.75, 'hsl('+angle+', 100%, 75%)');
+					gradient.addColorStop(1, 'hsl('+angle+', 100%, 50%)');
 
 				context.fillStyle = gradient;
 				context.fill();
@@ -57,45 +105,37 @@
 		};
 		
 		/**
-		 * Rotate canvas
-		 * @param	{integer}	angle
-		 */
-		function rotate(angle) {
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			context.setTransform(1, 0, 0, 1, 0, 0);
-			context.translate(x, y);
-			context.rotate(angle * r2d);
-			context.translate(-x, -y);
-			draw();
-		};
-		
-		/**
 		 * Set color function
 		 */
 		function set_color() {
 			
-			const h_size = $handle.outerWidth();
-			const pos_y = $handle.offset().top + (h_size / 2);
-			const pos_x = $handle.offset().left + (h_size / 2);
+			const h_size	= $handle.outerWidth();
+			const pos_y		= $handle.offset().top + (h_size / 2);
+			const pos_x		= $handle.offset().left + (h_size / 2);
 			
-			const canvas_offset = canvas.getBoundingClientRect();
-			const canvas_x = Math.floor(pos_x - canvas_offset.left);
-			const canvas_y = Math.floor(pos_y - canvas_offset.top);
+			const canvas_offset	= canvas.getBoundingClientRect();
+			const canvas_x		= Math.floor(pos_x - canvas_offset.left);
+			const canvas_y		= Math.floor(pos_y - canvas_offset.top);
 			
-			var image_data = context.getImageData(canvas_x, canvas_y, 1, 1);
-			var pixel = image_data.data;
+			var pixel	= context.getImageData(canvas_x, canvas_y, 1, 1);
+			var data	= pixel.data;
 			
-			var color = pixel[2] + 256 * pixel[1] + 65536 * pixel[0];
-			var hex = '#' + ( '0000' + color.toString(16) ).substr(-6);
-
-			// 0.0 -> 1.0
-			var brightness = -(parseInt($brightness.css('top')) / $brightness.height()).toFixed(1);
+			var color	= data[2] + 256 * data[1] + 65536 * data[0];
+			var hex		= '#' + ( '0000' + color.toString(16) ).substr(-6);
 			
 			$handle.css('background', hex);
 
-			// If success callback, then run
+			const rail_height	= parseInt( $handle.parent().height() );
+			const handle_y		= parseInt( $handle.css('top') ) + ($handle.outerWidth() / 2);
+			const saturation	= handle_y / rail_height;
+
+			// Update data
+			self.data.hex			= hex;
+			self.data.saturation	= (1 - saturation).toFixed(1);
+			self.data.brightness	= -(parseInt($brightness.css('top')) / $brightness.height()).toFixed(1);
+			// If has callback, then run
 			if (options.changed && typeof options.changed === 'function') {
-				options.changed(hex, brightness);
+				options.changed(self.data);
 			}
 		};
 
@@ -112,7 +152,7 @@
 			const radians	= Math.atan2(mouse_x - center_x, mouse_y - center_y);
 			const degrees	= Math.round((radians * (180 / Math.PI) * -1) + 100);
 
-			return degrees;
+			return (degrees + 90);
 		};
 		
 		/**
@@ -135,7 +175,7 @@
 				}
 				
 				$handle.css('top', y - (h_size / 2));
-				
+
 				set_color();
 			});
 		});
@@ -203,11 +243,11 @@
 			// Calculate the mouse position in degrees
 			const click_degrees = get_degrees(event.pageX, event.pageY);
 			
-			$(document).bind('mousemove', click_degrees, function(event) {
+			$(document).bind('mousemove', function(event) {
 				// Calculate the mouse move position, removing starting point
 				const degrees = get_degrees(event.pageX, event.pageY) - click_degrees;
 				
-				rotate( degrees );
+				self.draw_wheel({ hue: degrees });
 				set_color();
 			});
 		});
@@ -223,7 +263,8 @@
 		 * Set default starting points
 		 */
 		$brightness.css('top', -(options.brightness * $brightness.height()));
-		rotate(options.color);
+		self.draw_wheel({ hue: options.hue });
+		$handle.css('top',  (((1 - options.saturation) * $handle.parent().height()) - ($handle.outerWidth() / 2)) );
 		set_color();
 
 	};

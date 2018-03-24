@@ -1,22 +1,24 @@
 {
   "name": "lifx-desktop-app",
   "version": "0.0.1",
-  "main": "app.js",
+  "main": "electron.js",
   "scripts": {
     "start": "gulp && electron ."
   },
   "author": "Levi Cole",
   "license": "MIT",
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "electron": "~1.8.2",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^5.0.0",
+    "gulp-babel": "^7.0.1",
+    "gulp-clean-css": "^3.9.3",
+    "gulp-concat": "^2.6.1",
     "gulp-imagemin": "^4.1.0",
-    "gulp-minify-css": "^1.2.4",
     "gulp-sass": "^3.1.0",
     "gulp-size": "^3.0.0",
     "gulp-svgmin": "^1.2.4",
-    "gulp-uglify": "^3.0.0",
     "gulp-uglify-es": "^1.0.1",
     "gulp-util": "^3.0.8",
     "jquery": "^3.3.1"

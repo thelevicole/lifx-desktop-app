@@ -1,86 +1,86 @@
 // Gulp
-const gulp = require('gulp');
+const gulp		= require('gulp');
 
 // Sass/CSS
 const sass		= require('gulp-sass');
 const prefix	= require('gulp-autoprefixer');
-const css_min	= require('gulp-minify-css');
+const css_min	= require('gulp-clean-css');
 
 // JavaScript
-const js_min	= require('gulp-uglify-es').default;
+const concat	= require('gulp-concat');
+const uglify	= require('gulp-uglify-es').default;
+const babel		= require('gulp-babel');
 
 // Images
-const svg_min	= require('gulp-svgmin');
 const image_min	= require('gulp-imagemin');
 
 // Stats
 const size		= require('gulp-size');
 const gutil		= require('gulp-util');
 
+// Paths
+const source	= './assets/';
+const public	= './';
 
-// Compile sass
-gulp.task('sass', function() {
-	gulp.src(['./assets/sass/*.scss', '!./assets/sass/_variables.scss'])
-		.pipe( sass({
-			includePaths: ['./assets/sass'],
-			outputStyle: 'expanded'
-		}) )
-		.pipe( prefix('last 1 version', '> 1%', 'ie 8', 'ie 7') )
-		.pipe( gulp.dest('./css') )
-		.pipe( css_min() )
-		.pipe( gulp.dest('./css') );
-});
+/**
+ * Simply minify and combile javascript files
+ * @param	{array|string}	scripts
+ * @param	{[type]}		destination		Destination path e.g. `./dist/js/`
+ * @param	{[type]}		file        	File name e.g. `main.js`
+ * @return									Out put will be `./dist/js/main.js`
+ */
+function minify_js(scripts, destination, file, run_babel) {
+	run_babel = typeof run_babel === 'boolean' ? run_babel : false;
 
-// Uglify JS
-gulp.task('uglify', function() {
-	gulp.src('./assets/javascripts/*.js')
-		.pipe( js_min() )
+	var src = gulp.src(scripts);
+	if (run_babel) {
+		src.pipe( babel() );
+	}
+	src.pipe( uglify() )
+		.pipe( concat(file) )
 		.on('error', function(err) {
 			gutil.log( gutil.colors.red('[Error]'), err.toString() );
 		})
-		.pipe( gulp.dest('./js') );
+		.pipe( gulp.dest(destination) );
+}
+
+// Compile sass
+gulp.task('stylesheets', function() {
+	return gulp.src([source+'sass/*.scss', '!'+source+'sass/_variables.scss'])
+		.pipe( sass({
+			includePaths: [source+'sass'],
+			outputStyle: 'expanded'
+		}) )
+		.pipe( prefix('last 1 version', '> 1%', 'ie 8', 'ie 7') )
+		.pipe( gulp.dest(public+'css') )
+		.pipe( css_min() )
+		.pipe( gulp.dest(public+'css') );
 });
 
-// Images
-gulp.task('minify_svgs', function() {
-	gulp.src('./assets/images/svg/*.svg')
-		.pipe( svg_min() )
-		.pipe( gulp.dest('./assets/images/svg') )
-		.pipe( gulp.dest('./images/svg') );
+// Uglify JS
+gulp.task('javascripts', function() {
+	minify_js([
+		source+'javascripts/vendor/Lifx.js',
+		source+'javascripts/vendor/jQuery.LifxColorPicker.js'
+	], public+'js', 'vendor.js', true);
+	minify_js(source+'javascripts/app.js', public+'js', 'app.js', true);
 });
 
-gulp.task('minify_images', function() {
-	gulp.src('./assets/images/**/*')
+// Minify images
+gulp.task('images', function() {
+	return gulp.src(source+'images/**/*')
 		.pipe( image_min() )
-		.pipe( gulp.dest('./assets/images') )
-		.pipe( gulp.dest('./images') );
+		.pipe( gulp.dest(source+'images') )
+		.pipe( gulp.dest(public+'images') );
 });
 
-// Stats
-gulp.task('stats', function() {
-	gulp.src('./**/*')
-		.pipe( size() )
-		.pipe( gulp.dest('./') );
-});
+// Build process
+gulp.task('default', ['stylesheets', 'javascripts', 'images']);
 
-//
-gulp.task('default', ['sass', 'uglify', 'minify_svgs', 'minify_images']);
 gulp.task('watch', function() {
-
-	// Watch stylesheets
-	gulp.watch('./assets/sass/**/*.scss', function() {
-		gulp.run('sass');
-	});
-
-	// Watch JavaScripts
-	gulp.watch('./assets/js/**/*.js', function() {
-		gulp.run('uglify');
-	});
-
-	// Watch images
-	gulp.watch('./assets/images/**/*', function() {
-		gulp.run('minify_svgs');
-		gulp.run('minify_images');
-	});
-
+	gulp.watch([source+'**/*', '!'+source+'images/**/*'], ['stylesheets', 'javascripts']);
+	gulp.watch([source+'images/**/*'], ['images']);
 });
+
+
+
