@@ -45,7 +45,7 @@
 			update_light: function(id, data) {
 				for (var i = 0; i < this.lights.length; i++) {
 					if (this.lights[i].id === id) {
-						this.lights[i] = $.extend(this.lights[i], data);
+						this.lights[i] = $.extend(true, this.lights[i], data);
 						
 						return this.lights[i];
 					}
@@ -79,10 +79,6 @@
 				return this.data.power === 'on' ? 'round' : 'butt';	
 			},
 			hex_color: function() {
-
-				if (typeof this.data.color === 'string') {
-					return this.data.color;
-				}
 
 				var h = this.data.color.hue;
 				var s = this.data.color.saturation;
@@ -164,9 +160,9 @@
 			var timing = false;
 
 			$(this.$el).LifxColorPicker({
-				brightness: light.brightness,
+				brightness: parseInt(light.brightness),
 				hue: light.color.hue,
-				saturation: light.color.saturation,
+				saturation: parseInt(light.color.saturation),
 				changed: function(color) {
 					// color.hex
 					// color.hue
@@ -185,7 +181,10 @@
 
 						// Update UI
 						app.update_light(app.light, {
-							color: color.hex,
+							color: {
+								hue: color.hue,
+								saturation: color.saturation
+							},
 							brightness: color.brigtness,
 							power: light.power
 						});
