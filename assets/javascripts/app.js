@@ -131,7 +131,7 @@
 				return false;
 			},
 			set: function() {
-				app.light = this.data.id;
+				app.light = this.data;
 
 				return false;
 			}
@@ -143,19 +143,21 @@
 	 */
 	Vue.component('color-picker', {
 		template: '#color-picker-template',
-		computed: {
-			light: function() {
-				return app.get_light( app.light );
-			}
-		},
 		methods: {
 			close: function() {
 				app.light = null;
 				return false;
 			}
 		},
+		computed: {
+			light: () => {
+				return app.light;
+			}
+		},
 		mounted: function() {
 			const light = this.light;
+
+			console.log(light);
 
 			var timing = false;
 
@@ -177,10 +179,10 @@
 					timing = setTimeout(function() {
 
 						// Send updates to Lifx
-						connection.set_color('id:'+app.light, color.hue, color.saturation);
+						connection.set_color('id:'+light.id, color.hue, color.saturation);
 
 						// Update UI
-						app.update_light(app.light, {
+						app.update_light(light.id, {
 							color: {
 								hue: color.hue,
 								saturation: color.saturation

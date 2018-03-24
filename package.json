@@ -10,6 +10,7 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "electron": "~1.8.2",
+    "electron-packager": "^11.2.0",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^5.0.0",
     "gulp-babel": "^7.0.1",
