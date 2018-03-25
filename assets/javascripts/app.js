@@ -33,8 +33,16 @@
 					localStorage.setItem('lifx_access_token', this.access_token);
 					connection = new Lifx( this.access_token );
 
+					$(this.$el).addClass('loading');
+
 					connection.list_lights().then((response) => {
+						$(this.$el).removeClass('loading');
 						this.lights = response;
+					}, (errors) => {
+						$(this.$el).removeClass('loading');
+						if (errors.error) {
+							alert(errors.error);
+						}
 					});
 
 				} else {

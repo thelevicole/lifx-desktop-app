@@ -20,6 +20,13 @@ a {
 	text-decoration: underline;
 }
 
+[vue-app] {
+	&.loading {
+		opacity: 0.4;
+		pointer-events: none;
+	}
+}
+
 header {
 	position: fixed;
 	top: 0;

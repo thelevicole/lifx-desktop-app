@@ -1,3 +1,6 @@
+# Builds
+LIFX-darwin-x64/
+
 # Logs
 logs
 *.log
