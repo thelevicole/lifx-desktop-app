@@ -34,44 +34,46 @@ const create_window = () => {
 		app_window = null;
 	});
 
-	Menu.setApplicationMenu( Menu.buildFromTemplate([
-		{
-			label: 'Edit',
-			submenu: [
-				{role: 'undo'},
-				{role: 'redo'},
-				{type: 'separator'},
-				{role: 'cut'},
-				{role: 'copy'},
-				{role: 'paste'},
-				{role: 'delete'},
-				{role: 'selectall'}
-			]
-		},
-		{
-			label: 'View',
-			submenu: [
-				{role: 'reload'},
-				{role: 'togglefullscreen'}
-			]
-		},
-		{
-			role: 'window',
-			submenu: [
-				{role: 'minimize'},
-				{role: 'close'}
-			]
-		},
-		{
-			role: 'help',
-			submenu: [
-				{
-					label: 'Learn More',
-					click: () => { require('electron').shell.openExternal('https://github.com/thelevicole/lifx-desktop-app'); }
-				}
-			]
-		}
-	]) );
+	if (false) {
+		Menu.setApplicationMenu( Menu.buildFromTemplate([
+			{
+				label: 'Edit',
+				submenu: [
+					{role: 'undo'},
+					{role: 'redo'},
+					{type: 'separator'},
+					{role: 'cut'},
+					{role: 'copy'},
+					{role: 'paste'},
+					{role: 'delete'},
+					{role: 'selectall'}
+				]
+			},
+			{
+				label: 'View',
+				submenu: [
+					{role: 'reload'},
+					{role: 'togglefullscreen'}
+				]
+			},
+			{
+				role: 'window',
+				submenu: [
+					{role: 'minimize'},
+					{role: 'close'}
+				]
+			},
+			{
+				role: 'help',
+				submenu: [
+					{
+						label: 'Learn More',
+						click: () => { require('electron').shell.openExternal('https://github.com/thelevicole/lifx-desktop-app'); }
+					}
+				]
+			}
+		]) );
+	}
 };
 
 app.on('ready', create_window);

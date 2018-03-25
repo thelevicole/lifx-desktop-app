@@ -21,6 +21,11 @@
 		mounted: function() {
 			this.authenticate();
 		},
+		computed: {
+			ordered_lights: function () {
+				return _.orderBy(this.lights, 'label');
+			}
+		},
 		methods: {
 			authenticate: function() {
 

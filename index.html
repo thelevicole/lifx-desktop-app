@@ -31,7 +31,7 @@
 			<div v-if="!light">
 				<div id="bulbs" class="text-center" v-if="lights.length">
 					<h1>Lights</h1>
-					<light-switch v-for="light in lights" :key="light.id" :data="light"/>
+					<light-switch v-for="light in ordered_lights" :key="light.id" :data="light"/>
 				</div>
 				<h1 v-if="!lights.length" class="text-center text-white">Loading...</h1>
 			</div>
@@ -78,10 +78,11 @@
 	</script>
 
 	<script>
-		window.jQuery = window.$ = require('./js/jquery.js');
-		window.Vue = require('./js/vue.js');
+		window.jQuery	= window.$ = require('./js/jquery.js');
+		window._		= require('./js/lodash.js');
+		window.Vue		= require('./js/vue.js');
+		window.Lifx		= require('./js/lifx.js');
 		require('./renderer.js');
-		window.Lifx = require('./js/lifx.js');
 		require('./js/color-picker.js');
 		require('./js/app.js');
 	</script>

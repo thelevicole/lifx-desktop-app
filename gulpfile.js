@@ -43,6 +43,8 @@ function minify_js(scripts, destination, file, run_babel) {
 			gutil.log( gutil.colors.red('[Error]'), err.toString() );
 		})
 		.pipe( gulp.dest(destination) );
+
+	return src;
 }
 
 // Compile sass
@@ -61,6 +63,7 @@ gulp.task('stylesheets', function() {
 // Minify JS
 gulp.task('javascripts', function() {
 	return Promise.all([
+		minify_js('./node_modules/lodash/lodash.js', public+'js', 'lodash.js'),
 		minify_js('./node_modules/jquery/dist/jquery.js', public+'js', 'jquery.js'),
 		minify_js('./node_modules/vue/dist/vue.min.js', public+'js', 'vue.js'),
 		minify_js(source+'javascripts/vendor/Lifx.js', public+'js', 'lifx.js', true),
