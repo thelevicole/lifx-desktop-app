@@ -1,7 +1,3 @@
-// Dependencies
-
-window.$	= window.jQuery = require('jquery');
-window.Vue	= require('vue/dist/vue.min.js');
 const shell	= require('electron').shell;
 
 (function($) {

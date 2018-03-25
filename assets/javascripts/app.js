@@ -157,29 +157,27 @@
 		mounted: function() {
 			const light = this.light;
 
-			console.log(light);
-
-			var timing = false;
+			var sending = false;
 
 			$(this.$el).LifxColorPicker({
-				brightness: parseInt(light.brightness),
+				brightness: light.brightness,
 				hue: light.color.hue,
-				saturation: parseInt(light.color.saturation),
+				saturation: light.color.saturation,
 				changed: function(color) {
 					// color.hex
 					// color.hue
 					// color.saturation
-					// color.brigtness
+					// color.brightness
 
 					// Send data
-					if (timing) {
-						clearTimeout(timing);
+					if (sending) {
+						clearTimeout(sending);
 					}
 
-					timing = setTimeout(function() {
+					sending = setTimeout(function() {
 
 						// Send updates to Lifx
-						connection.set_color('id:'+light.id, color.hue, color.saturation);
+						connection.set_color('id:'+light.id, color.hue, color.saturation, color.brightness);
 
 						// Update UI
 						app.update_light(light.id, {
@@ -187,7 +185,7 @@
 								hue: color.hue,
 								saturation: color.saturation
 							},
-							brightness: color.brigtness,
+							brightness: color.brightness,
 							power: light.power
 						});
 

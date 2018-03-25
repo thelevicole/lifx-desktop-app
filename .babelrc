@@ -1,0 +1,9 @@
+{
+	'presets': [
+		['env', {
+			'targets': {
+				'browsers': ['last 1 version', '> 1%', 'ie 8', 'ie 7']
+			}
+		}]
+	]
+}

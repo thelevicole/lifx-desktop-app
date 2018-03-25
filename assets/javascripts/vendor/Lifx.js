@@ -200,7 +200,7 @@ function Lifx(access_token) {
 		selector = validate_selector(selector);
 
 		let data = extend({
-			power:		'on',	// string	The power state you want to set on the selector. on or off
+			power:		'',		// string	The power state you want to set on the selector. on or off
 			color:		'',		// string	The color to set the light to. @see https://api.developer.lifx.com/v1/docs/colors
 			brightness:	null,	// double	The brightness level from 0.0 to 1.0. Overrides any brightness set in color (if any).
 			duration:	null,	// double	How long in seconds you want the power action to take. Range: 0.0 – 3155760000.0 (100 years)
@@ -362,24 +362,26 @@ function Lifx(access_token) {
 	 * Set a color based on hue and saturation
 	 * @param	{integer}	hue			Accepts a number between 0 - 360
 	 * @param	{integer}	saturation	Accepts a double between 0.0 - 1.0
+	 * @param	{integer}	brightness	Accepts a double between 0.0 - 1.0
 	 * @return	{Promise}
 	 * @see		https://api.developer.lifx.com/docs/validate-color
 	 */
-	self.set_color = (selector, hue, saturation) => {
+	self.set_color = (selector, hue, saturation, brightness) => {
 		return self.set_state(selector, {
-			color: 'hue:'+hue+' saturation:'+saturation+' kelvin:3500'
+			color: 'hue:'+hue+' saturation:'+saturation+' kelvin:3500'+(brightness ? ' brightness:'+brightness : '')
 		});
 	};
 
 	/**
 	 * Set a white color based on kelvin
 	 * @param	{integer}	kelvin		Accepts a number between 1500 - 9000
+	 * @param	{integer}	brightness	Accepts a double between 0.0 - 1.0
 	 * @return	{Promise}
 	 * @see		https://api.developer.lifx.com/docs/validate-color
 	 */
-	self.set_white = (selector, kelvin) => {
+	self.set_white = (selector, kelvin, brightness) => {
 		return self.set_state(selector, {
-			color: 'hue:0.0 saturation:0.0 kelvin:'+kelvin
+			color: 'hue:0.0 saturation:0.0 kelvin:'+kelvin+(brightness ? ' brightness:'+brightness : '')
 		});
 	};
 
@@ -390,6 +392,4 @@ function Lifx(access_token) {
 }
 
 
-
-
-
+module.exports = Lifx;

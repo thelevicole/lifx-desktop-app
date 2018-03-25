@@ -1,6 +1,4 @@
-const electron		= require('electron');
-const app			= electron.app;
-const BrowserWindow	= electron.BrowserWindow;
+const {app, Menu, BrowserWindow}	= require('electron');
 
 const path			= require('path');
 const url			= require('url');
@@ -35,6 +33,45 @@ const create_window = () => {
 	app_window.on('closed', function() {
 		app_window = null;
 	});
+
+	Menu.setApplicationMenu( Menu.buildFromTemplate([
+		{
+			label: 'Edit',
+			submenu: [
+				{role: 'undo'},
+				{role: 'redo'},
+				{type: 'separator'},
+				{role: 'cut'},
+				{role: 'copy'},
+				{role: 'paste'},
+				{role: 'delete'},
+				{role: 'selectall'}
+			]
+		},
+		{
+			label: 'View',
+			submenu: [
+				{role: 'reload'},
+				{role: 'togglefullscreen'}
+			]
+		},
+		{
+			role: 'window',
+			submenu: [
+				{role: 'minimize'},
+				{role: 'close'}
+			]
+		},
+		{
+			role: 'help',
+			submenu: [
+				{
+					label: 'Learn More',
+					click: () => { require('electron').shell.openExternal('https://github.com/thelevicole/lifx-desktop-app'); }
+				}
+			]
+		}
+	]) );
 };
 
 app.on('ready', create_window);

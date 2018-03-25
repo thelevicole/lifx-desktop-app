@@ -14,9 +14,10 @@ const babel		= require('gulp-babel');
 // Images
 const image_min	= require('gulp-imagemin');
 
-// Stats
+// Other
 const size		= require('gulp-size');
 const gutil		= require('gulp-util');
+const rjs		= require('gulp-requirejs-optimize');
 
 // Paths
 const source	= './assets/';
@@ -57,14 +58,17 @@ gulp.task('stylesheets', function() {
 		.pipe( gulp.dest(public+'css') );
 });
 
-// Uglify JS
+// Minify JS
 gulp.task('javascripts', function() {
-	minify_js([
-		source+'javascripts/vendor/Lifx.js',
-		source+'javascripts/vendor/jQuery.LifxColorPicker.js'
-	], public+'js', 'vendor.js', true);
-	minify_js(source+'javascripts/app.js', public+'js', 'app.js', true);
+	return Promise.all([
+		minify_js('./node_modules/jquery/dist/jquery.js', public+'js', 'jquery.js'),
+		minify_js('./node_modules/vue/dist/vue.min.js', public+'js', 'vue.js'),
+		minify_js(source+'javascripts/vendor/Lifx.js', public+'js', 'lifx.js', true),
+		minify_js(source+'javascripts/vendor/jQuery.LifxColorPicker.js', public+'js', 'color-picker.js', true),
+		minify_js(source+'javascripts/app.js', public+'js', 'app.js', true)
+	]);
 });
+
 
 // Minify images
 gulp.task('images', function() {

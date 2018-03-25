@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "main": "electron.js",
   "scripts": {
-    "start": "gulp && electron ."
+    "start": "gulp && electron .",
+    "build": "gulp && electron-packager . --overwrite --icon ./assets/icons/icon.icns --ignore='\\assets'"
   },
   "author": "Levi Cole",
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "electron": "~1.8.2",
     "electron-packager": "^11.2.0",
     "gulp": "^3.9.1",
@@ -17,6 +19,7 @@
     "gulp-clean-css": "^3.9.3",
     "gulp-concat": "^2.6.1",
     "gulp-imagemin": "^4.1.0",
+    "gulp-requirejs-optimize": "^1.3.0",
     "gulp-sass": "^3.1.0",
     "gulp-size": "^3.0.0",
     "gulp-svgmin": "^1.2.4",
