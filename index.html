@@ -33,9 +33,9 @@
 				<div id="bulbs" class="text-center" v-if="lights.length">
 					<h1>Lights</h1>
 					<!-- <group-switch :lights="{id: 'all', name: 'All Lights', lights: lights}"></group-switch> -->
-					<light-switch v-for="light in ordered_lights" :key="light.id" :data="light"></light-switch>
+					<light-switch v-for="light in order_by(lights, 'label')" :key="light.id" :data="light"></light-switch>
 					<h1>Groups</h1>
-					<group-switch v-for="group in ordered_groups" :key="group.id" :group="group"></group-switch>
+					<group-switch v-for="group in order_by(groups, 'name')" :key="group.id" :group="group"></group-switch>
 				</div>
 				<h1 v-if="!lights.length" class="text-center text-white">Loading...</h1>
 			</div>

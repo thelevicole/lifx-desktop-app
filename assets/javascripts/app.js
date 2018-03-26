@@ -22,15 +22,12 @@
 		mounted: function() {
 			this.authenticate();
 		},
-		computed: {
-			ordered_lights: function () {
-				return _.orderBy(this.lights || [], 'label');
-			},
-			ordered_groups: function () {
-				return _.orderBy(this.groups || [], 'name');
-			}
-		},
 		methods: {
+
+			order_by: function(data, by) {
+				return _.orderBy(data || [], by);
+			},
+
 			//
 			// User AUTH functions
 			//
@@ -107,6 +104,10 @@
 
 					if (light) {
 						this.lights[light.index] = _.extend(true, light.data, (data || {}));
+
+						console.log('update single light', id);
+					} else {
+						console.warn('light not found', id);
 					}
 				}
 
@@ -296,9 +297,6 @@
 			}
 		},
 		computed: {
-			selector: () => {
-				return app.controlling.selector+':'+app.controlling.id;
-			},
 			single: () => {
 				if (!app.controlling.data.brightness) {
 					return app.controlling.data[0];
@@ -311,7 +309,7 @@
 			const single	= this.single;
 			var sending		= false;
 
-			const selector	= this.selector;
+			const selector	= app.controlling.selector+':'+app.controlling.id;
 			const update_id	= app.controlling.id;
 
 			$(this.$el).LifxColorPicker({
