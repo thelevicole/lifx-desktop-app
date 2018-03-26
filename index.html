@@ -10,7 +10,7 @@
 	<div vue-app>
 
 		<header>
-			<span v-if="controlling">{{ controlling.label || controlling.name }}</span>
+			<span v-if="controlling">{{ controlling.title }}</span>
 			<img v-if="!controlling" src="./images/logo.svg" alt="LIFX" width="52" height="20">
 			<a v-on:click.prevent="logout" v-if="access_token && lights.length">Logout</a>
 		</header>

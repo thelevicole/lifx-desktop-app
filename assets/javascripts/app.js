@@ -191,6 +191,7 @@
 			},
 			set: function() {
 				app.controlling = {
+					title: this.group.name,
 					selector: 'group_id',
 					id: this.group.id,
 					data: this.group.lights
@@ -272,6 +273,7 @@
 			},
 			set: function() {
 				app.controlling = {
+					title: this.data.label,
 					selector: 'id',
 					id: this.data.id,
 					data: this.data
