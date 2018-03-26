@@ -16,17 +16,24 @@
 		data: {
 			access_token: localStorage.getItem('lifx_access_token'),
 			lights: [],
-			light: null
+			groups: [],
+			controlling: false
 		},
 		mounted: function() {
 			this.authenticate();
 		},
 		computed: {
 			ordered_lights: function () {
-				return _.orderBy(this.lights, 'label');
+				return _.orderBy(this.lights || [], 'label');
+			},
+			ordered_groups: function () {
+				return _.orderBy(this.groups || [], 'name');
 			}
 		},
 		methods: {
+			//
+			// User AUTH functions
+			//
 			authenticate: function() {
 
 				if (this.access_token) {
@@ -38,6 +45,7 @@
 					connection.list_lights().then((response) => {
 						$(this.$el).removeClass('loading');
 						this.lights = response;
+						this.group_builder();
 					}, (errors) => {
 						$(this.$el).removeClass('loading');
 						if (errors.error) {
@@ -55,23 +63,138 @@
 				connection = false;
 				location.reload();
 			},
-			update_light: function(id, data) {
-				for (var i = 0; i < this.lights.length; i++) {
-					if (this.lights[i].id === id) {
-						this.lights[i] = $.extend(true, this.lights[i], data);
-						
-						return this.lights[i];
+			group_builder: function() {
+				let builder = [];
+
+				if (this.lights) {
+					for (var i = 0; i < this.lights.length; i++) {
+						const light = this.lights[i];
+						if (light.group) {
+							var group		= _.findIndex(builder, {id: light.group.id});
+							var new_group	= {
+								id: light.group.id,
+								name: light.group.name,
+								power: light.power,
+								lights: _.values( _.filter(this.lights, (object) => {
+									return object.group.id === light.group.id;
+								}) )
+							};
+
+							if (group !== -1) {
+								if (light.power === 'on') {
+									builder[group].power = 'on';
+								}
+							} else {
+								builder.push( new_group );
+							}
+						}
 					}
 				}
 
-				return false;
+				this.groups = builder;
 			},
-			get_light: function(id) {
-				for (var i = 0; i < this.lights.length; i++) {
-					if (this.lights[i].id === id) {
-						return this.lights[i];
+
+			//
+			// Single LIGHT function
+			//
+			update_light: function(id, data) {
+				if (id === 'all') {
+					for (var i = 0; i < this.lights.length; i++) {
+						this.lights[i] = this.update_light(this.lights[i].id, data);
+					}
+				} else {
+					const light = this.get_light(id);
+
+					if (light) {
+						this.lights[light.index] = _.extend(true, light.data, (data || {}));
 					}
 				}
+
+				// Rebuild group
+				this.group_builder();
+			},
+			get_light: function(id, attr) {
+				const index = _.findIndex(this.lights, {id: id});
+
+				if (index >= 0) {
+					const object = {
+						index: index,
+						data: this.lights[index]
+					};
+
+					if (attr) {
+						return object[ attr ];
+					}
+
+					return object;
+				}
+
+				return attr ? null : false;
+			},
+
+			//
+			// Single GROUP function
+			//
+			update_group_lights: function(group_id, light_data) {
+				let group = this.get_group( group_id );
+
+				if (group && group.lights) {
+					for (var i = 0; i < group.lights.length; i++) {
+						this.update_light(group.lights[i].id, light_data);
+					}
+				}
+			},
+			get_group: function(id) {
+				return _.find(this.groups, {id: id}, false);
+			},
+
+			//
+			// Dirty device guessing updater
+			//
+			update_view_data: function(id, data) {
+				if (id === 'all' || this.get_light(id)) {
+					this.update_light(id, data);
+				} else if (this.get_group(id)) {
+					this.update_group_lights(id, data);
+				}
+			}
+		}
+	});
+
+	/**
+	 * Add [ALL] `switch` component to app
+	 */
+	Vue.component('group-switch', {
+		props: [ 'group' ],
+		template: '#group-switch-template',
+		computed: {
+			selector: function() {
+				return this.group.id !== 'all' ? 'group_id:'+this.group.id : 'all';
+			},
+			hex_color: function() {
+				return this.group.power === 'on' ? '#00A6FF' : '#3B434B';
+			}
+		},
+		methods: {
+			toggle: function() {
+				this.group.power = this.group.power === 'on' ? 'off' : 'on';
+
+				connection.set_state(this.selector , {
+					power: this.group.power
+				});
+
+				app.update_view_data(this.group.id, {
+					power: this.group.power
+				});
+
+				return false;
+			},
+			set: function() {
+				app.controlling = {
+					selector: 'group_id',
+					id: this.group.id,
+					data: this.group.lights
+				};
 
 				return false;
 			}
@@ -141,10 +264,18 @@
 					power: this.data.power
 				});
 
+				app.update_view_data(this.data.id, {
+					power: this.data.power
+				});
+
 				return false;
 			},
 			set: function() {
-				app.light = this.data;
+				app.controlling = {
+					selector: 'id',
+					id: this.data.id,
+					data: this.data
+				};
 
 				return false;
 			}
@@ -158,24 +289,33 @@
 		template: '#color-picker-template',
 		methods: {
 			close: function() {
-				app.light = null;
+				app.controlling = false;
 				return false;
 			}
 		},
 		computed: {
-			light: () => {
-				return app.light;
+			selector: () => {
+				return app.controlling.selector+':'+app.controlling.id;
+			},
+			single: () => {
+				if (!app.controlling.data.brightness) {
+					return app.controlling.data[0];
+				}
+
+				return app.controlling.data;
 			}
 		},
 		mounted: function() {
-			const light = this.light;
+			const single	= this.single;
+			var sending		= false;
 
-			var sending = false;
+			const selector	= this.selector;
+			const update_id	= app.controlling.id;
 
 			$(this.$el).LifxColorPicker({
-				brightness: light.brightness,
-				hue: light.color.hue,
-				saturation: light.color.saturation,
+				brightness: single.brightness,
+				hue: single.color.hue,
+				saturation: single.color.saturation,
 				changed: function(color) {
 					// color.hex
 					// color.hue
@@ -190,16 +330,16 @@
 					sending = setTimeout(function() {
 
 						// Send updates to Lifx
-						connection.set_color('id:'+light.id, color.hue, color.saturation, color.brightness);
+						connection.set_color(selector, color.hue, color.saturation, color.brightness);
 
 						// Update UI
-						app.update_light(light.id, {
+						app.update_view_data(update_id, {
 							color: {
 								hue: color.hue,
 								saturation: color.saturation
 							},
 							brightness: color.brightness,
-							power: light.power
+							power: single.power
 						});
 
 					}, 500);

@@ -19,27 +19,6 @@ function Lifx(access_token) {
 	-------------------------------------------------------- */
 
 	/**
-	 * Serialize object for XML request
-	 * @param	{object}	object
-	 * @param	{string}	prefix
-	 * @return	{string}
-	 */
-	const serialize = function(object, prefix) {
-		let result = [];
-		
-		for (const param in object) {
-			if (object.hasOwnProperty(param)) {
-				const key	= prefix ? prefix+'['+param+']' : param;
-				const value	= object[param];
-
-				result.push( (value !== null && typeof value === 'object') ? serialize(value, key) : encodeURIComponent(key)+'='+encodeURIComponent(value));
-			}
-		}
-
-		return result.join('&');
-	};
-
-	/**
 	 * Merge multiple objects into one
 	 * @param	{object}	result
 	 * @return	{object}
@@ -74,10 +53,7 @@ function Lifx(access_token) {
 			let request = new XMLHttpRequest();
 				request.open(method.toUpperCase(), action, true);
 				request.setRequestHeader('Authorization', 'Bearer '+self.token);
-
-			if (method !== 'GET') {
-				request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=UTF-8');
-			}
+				request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 
 			request.onload = () => {
 				if (request.status >= 200 && request.status < 400) {
@@ -91,7 +67,7 @@ function Lifx(access_token) {
 				reject( JSON.parse(request.responseText) );
 			};
 
-			request.send( serialize(data || {}) );
+			request.send( JSON.stringify(data || {}) );
 		});
 	};
 
