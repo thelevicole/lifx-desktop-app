@@ -4,6 +4,8 @@ A simple desktop application build on [Electron](https://electronjs.org/) using 
 
 ## Screenshots
 
+![App icon](/screenshots/lifx-desktop-app-icon.jpg?raw=true "App icon")
+
 ![List devices](/screenshots/lifx-desktop-app-1.jpg?raw=true "List devices")
 
 ![Device controls](/screenshots/lifx-desktop-app-2.jpg?raw=true "Device controls")
