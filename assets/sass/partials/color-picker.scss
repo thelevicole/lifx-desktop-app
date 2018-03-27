@@ -9,7 +9,7 @@ $size: 320px;
 	}
 
 	&.power-off {
-		canvas {
+		.dial {
 			opacity: 0.3;
 		}
 	}
@@ -28,7 +28,7 @@ $size: 320px;
 			height: 100%;
 		}
 		
-		canvas {
+		.dial {
 			z-index: 1;
 			background-position: center;
 			background-repeat: no-repeat;

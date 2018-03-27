@@ -39,7 +39,8 @@
 		 */
 		const dom = {
 			rotation: 0,
-			brightness: 0
+			brightness: 0,
+			saturation: 0
 		};
 		 
 		
@@ -78,10 +79,10 @@
 		 * Simple function to retrieve the current [H]ue [S]aturation [L]ightness
 		 */
 		self.hsl = () => {
-			
+			let round_sat = Math.round(self.data.saturation * 100);
 			let h = self.data.hue;
-			let s = Math.round(self.data.saturation * 100);
-			let l = Math.round(s < 50 ? 100 - s : 50);
+			let s = 100;//round_sat;
+			let l = Math.round(100 - (round_sat / 2));
 			
 			return 'hsl('+h+', '+s+'%, '+l+'%)';
 		};
@@ -93,8 +94,8 @@
 		const generate_gradient = () => {
 			
 			for (let angle = 0; angle <= 360; angle++) {
-				const arc_start	= (angle - 90) * d2r;
-				const arc_end	= (angle - 88) * d2r;
+				const arc_start	= -((angle + 90) * d2r);
+				const arc_end	= -((angle + 88) * d2r);
 				
 				// Draw shape
 				context.beginPath();
@@ -104,8 +105,9 @@
 
 				// Generate gradient for shape
 				let gradient = context.createRadialGradient(x, y, 0, x, y, r);
-					gradient.addColorStop(0.475, 'hsl('+angle+', 10%, 100%)');
-					gradient.addColorStop(1, 'hsl('+angle+', 100%, 50%)');
+					gradient.addColorStop(0.5, 'hsl('+angle+', 10%, 100%)');
+					gradient.addColorStop(0.75, 'hsl('+angle+', 100%, 70%)');
+					gradient.addColorStop(1, 'hsl('+angle+', 100%, 30%)');
 
 				context.fillStyle = gradient;
 				context.fill();
@@ -132,7 +134,7 @@
 		const trigger_change = () => {
 			
 			let c_color	= self.hsl();
-			let c_top	= ((1 - self.data.saturation) * ($saturation_handle.parent().outerHeight() - $saturation_handle.outerHeight()) );
+			let c_top	= ((1 - dom.saturation) * ($saturation_handle.parent().outerHeight() - $saturation_handle.outerHeight()) );
 		
 			
 			// Update dial rotation
@@ -148,11 +150,7 @@
 			// Send data to callback
 			if (typeof options.changed === 'function') {
 				let send_data = self.data;
-
-				send_data.hsl			= self.hsl();
-				send_data.brightness	= parseFloat(send_data.brightness);
-				send_data.saturation	= parseFloat(send_data.saturation);
-				
+				send_data.hsl = self.hsl();
 				options.changed(send_data);
 			}
 		};
@@ -160,10 +158,9 @@
 		/**
 		 * Public
 		 * Set Hue
-		 * @param	{integer}	hue			// 0 - 360
 		 */
 		self.set_hue = (rotation) => {
-			let hue = typeof rotation !== 'undefined' ? rotation : self.data.hue;
+			let hue = typeof rotation !== undefined ? rotation : self.data.hue;
 			if (hue > 360) {
 				hue = hue - 360;
 			}
@@ -171,7 +168,7 @@
 				hue	= 360 - Math.abs(hue);
 			}
 			// Set data values
-			self.data.hue	= Math.round(360 - hue);
+			self.data.hue	= hue;
 			dom.rotation	= rotation;
 			trigger_change();
 		};
@@ -179,23 +176,22 @@
 		/**
 		 * Public
 		 * Set saturation
-		 * @param	{integer}	saturation	// 0.0 - 1.0
 		 */
 		self.set_saturation = (saturation) => {
-			saturation = typeof saturation !== 'undefined' ? saturation : self.data.saturation;
+			saturation = typeof saturation !== undefined ? saturation : self.data.saturation;
 			if (saturation > 1) { saturation = 1; }
 			if (saturation < 0) { saturation = 0; }
-			self.data.saturation = saturation.toFixed(2);
+			self.data.saturation	= saturation.toFixed(2);
+			dom.saturation			= saturation;
 			trigger_change();
 		};
 		
 		/**
 		 * Public
 		 * Set brightness
-		 * @param	{integer}	brightness	// 0.0 - 1.0
 		 */
 		self.set_brightness = (brightness) => {
-			brightness = typeof brightness !== 'undefined' ? brightness : self.data.brightness;
+			brightness = typeof brightness !== undefined ? brightness : self.data.brightness;
 			if (brightness > 1) { brightness = 1; }
 			if (brightness < 0) { brightness = 0; }
 			self.data.brightness	= brightness.toFixed(2);
@@ -206,9 +202,6 @@
 		/**
 		 * Public
 		 * Set color from Hue and Saturation
-		 * @param	{integer}	hue			// 0 - 360
-		 * @param	{integer}	saturation	// 0.0 - 1.0
-		 * @param	{integer}	brightness	// 0.0 - 1.0
 		 */
 		self.set_color = (hue, saturation, brightness) => {
 			self.set_hue(hue);
@@ -291,7 +284,7 @@
 		 * Initiate
 		 */
 		generate_gradient();
-		self.set_color(Math.round(360 - options.hue), parseFloat(options.saturation), parseFloat(options.brightness));
+		self.set_color(Math.round(options.hue), parseFloat(options.saturation), parseFloat(options.brightness));
 		
 	};
 
