@@ -4,7 +4,8 @@
   "main": "electron.js",
   "scripts": {
     "start": "gulp && electron .",
-    "build": "gulp && electron-packager . LIFX --overwrite --icon='./assets/icons/icon.icns' --ignore='./assets'"
+    "build": "gulp && electron-packager . LIFX--overwrite --icon='./assets/icons/icon.icns' --ignore='./assets'",
+    "buildwin": "gulp && electron-packager . LIFX--overwrite --platform=win32 --arch=ia32 --icon='./assets/icons/icon.icns' --ignore='./assets'"
   },
   "author": "Levi Cole",
   "license": "MIT",

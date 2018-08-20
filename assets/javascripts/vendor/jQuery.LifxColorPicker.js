@@ -1,9 +1,12 @@
 /**
- * LIFX jQuery Color Picker v0.0.1
- * Copyright (c) 2018 Levi Cole
- * Licensed under MIT (http://opensource.org/licenses/MIT)
+ *
+ * ----------------------------------
+ * Inspired by the Lifx app
+ * @see https://itunes.apple.com/us/app/lifx/id657758311
+ * @author Levi Cole at Skape Collective
+ * ----------------------------------
+ *
  */
-
 (function ($) {
 	'use strict';
 
@@ -124,7 +127,7 @@
 		const get_degrees = (mouse_x, mouse_y) => {
 			const radians	= Math.atan2(mouse_x - abs_x, mouse_y - abs_y);
 			const degrees	= Math.round((radians * r2d * -1) + 100);
-			return degrees;
+			return degrees < 0 ? 360 - Math.abs(degrees) : degrees;
 		};
 		
 		/**
@@ -165,11 +168,12 @@
 				hue = hue - 360;
 			}
 			if (hue < 0) {
-				hue	= 360 - Math.abs(hue);
+				hue = 360 - Math.abs(hue);
 			}
+			
 			// Set data values
 			self.data.hue	= hue;
-			dom.rotation	= rotation;
+			dom.rotation	= hue;
 			trigger_change();
 		};
 		
@@ -215,13 +219,21 @@
 		$dial.on('mousedown', function(event) {
 			
 			// Calculate the mouse position in degrees
-			const click_degrees = get_degrees(event.pageX, event.pageY);
-			
+			const start_degrees	= get_degrees(event.pageX, event.pageY);
+			const start_dom		= dom.rotation;
+
 			$(document).bind('mousemove', function(event) {
 				// Calculate the mouse move position, removing starting point
-				const degrees = get_degrees(event.pageX, event.pageY) - click_degrees;
+				const end_degrees = get_degrees(event.pageX, event.pageY);
+				let difference = 0;
 				
-				self.set_hue( degrees );
+				if (end_degrees < start_degrees) {
+					difference = (end_degrees + 360) - start_degrees;
+				} else {
+					difference = end_degrees - start_degrees;
+				}
+				
+				self.set_hue( start_dom + difference );
 			});
 		});
 		
@@ -278,6 +290,28 @@
 		 */
 		$(document).on('mouseup', function() {
 			$(document).unbind('mousemove');
+		});
+
+		$(window).bind('mousewheel DOMMouseScroll', function(event) {
+			if (event.target === $brightness_handle.parent()[0] || $brightness_handle.parent().has( event.target ).length) {
+
+				const current_value = self.data.brightness * 100;
+				let new_value = 0;
+
+				if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+					new_value = current_value - 1;
+				} else {
+					new_value = current_value + 1;
+				}
+
+				new_value = new_value / 100;
+
+				self.set_brightness( new_value );
+
+				event.preventDefault();
+				return false;
+
+			}
 		});
 		
 		/**
