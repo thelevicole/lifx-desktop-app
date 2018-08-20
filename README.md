@@ -2,7 +2,9 @@
 ⚠️ Work in progress ⚠️
 A simple desktop application build on [Electron](https://electronjs.org/) using LIFX HTTP API.
 
-## Screenshots
+## Preview
+
+[► Video demo](https://www.youtube.com/watch?v=Wo4DF5sUaN4)
 
 ![App icon](/screenshots/lifx-desktop-app-icon.jpg?raw=true "App icon")
 
